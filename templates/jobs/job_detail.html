@@ -1,0 +1,395 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% blocktrans with n=job.pk %}Job #{{ n }}{% endblocktrans %}{% endblock %}
+
+{% block content %}
+  {# Config blob — data attributes used by the polling script below #}
+  <div id="job-poll-config"
+       hidden
+       data-url="{% url 'jobs:job_status' job.pk %}"
+       data-retry-url="{% url 'jobs:retry_job' job.pk %}"
+       data-csrf-token="{{ csrf_token }}"
+       data-job-id="{{ job.pk }}"
+       data-transcript-heading="{% trans 'Transcript' %}"
+       data-copy-label="{% trans 'Copy' %}"
+       data-copied-label="{% trans 'Copied!' %}"
+       data-download-label="{% trans 'Download .txt' %}"
+       data-docx-url="{% url 'jobs:export_docx' job.pk %}"
+       data-srt-url="{% url 'jobs:export_srt' job.pk %}"
+       data-docx-label="{% trans 'Download .docx' %}"
+       data-srt-label="{% trans 'Download .srt' %}"
+       data-error-label="{% trans 'Error' %}"
+       data-retry-label="{% trans 'Retry job' %}"
+       data-step-order='["queued","converting","uploading","transcribing","done"]'
+       data-summary-heading="{% trans 'Summary' %}"></div>
+
+  <div class="page-header">
+    <h1>
+      {% if job.original_filename %}{{ job.original_filename }}
+      {% else %}{% blocktrans with n=job.pk %}Job #{{ n }}{% endblocktrans %}
+      {% endif %}
+    </h1>
+    <p class="lead">
+      {% trans "Status" %}:
+      <span id="job-status-badge-wrap">
+        {% if job.status == "done" %}
+          <span class="pill pill--ok">{{ job.get_status_display }}</span>
+        {% elif job.status == "failed" %}
+          <span class="pill pill--bad">{{ job.get_status_display }}</span>
+        {% else %}
+          <span style="color: var(--muted); font-weight: 600;">{{ job.get_status_display }}</span>
+        {% endif %}
+      </span>
+    </p>
+  </div>
+
+  {# ── Progress stepper (shown for all statuses) ── #}
+  <div class="card" style="margin-bottom: 1.25rem;">
+    <div id="job-stepper" class="job-stepper"
+         data-step-order='["queued","converting","uploading","transcribing","done"]'>
+      {% for step in job.get_steps %}
+        <div class="job-step job-step--{{ step.state }}" data-step="{{ step.key }}">
+          <div class="job-step__icon">
+            {% if step.state == "done" %}✓
+            {% elif step.state == "active" %}<span class="spinner" style="width:.75rem;height:.75rem;border-width:2px;" aria-hidden="true"></span>
+            {% else %}&nbsp;{% endif %}
+          </div>
+          <div class="job-step__label">{{ step.label }}</div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="job-progress-wrap">
+      <div class="job-progress-track">
+        <div id="job-progress-fill"
+             class="job-progress-fill{% if job.current_step == 'transcribing' %} job-progress-fill--indeterminate{% endif %}"
+             style="width: {{ job.progress }}%"></div>
+      </div>
+      <div id="job-progress-pct" class="job-progress-pct">{{ job.progress }}%</div>
+    </div>
+    {% if job.status == "pending" or job.status == "processing" %}
+      <p id="job-polling-msg" style="margin: 0.75rem 0 0; font-size: 0.9rem; color: var(--muted);">
+        {% trans "Updating automatically — no need to refresh." %}
+      </p>
+    {% endif %}
+  </div>
+
+  {% if job.status == "pending" or job.status == "processing" %}
+    <div id="job-dynamic-slot"></div>
+  {% endif %}
+
+  {% if job.status == "failed" %}
+    <div class="card" style="margin-bottom: 1.25rem; border-color: rgba(180, 35, 24, 0.2); background: var(--danger-bg);">
+      <p style="margin: 0 0 1rem; color: #7f1d1d;"><strong>{% trans "Error" %}</strong></p>
+      <pre class="transcript" style="max-height: none; background: #fff;">{{ job.error_message }}</pre>
+      <form method="post" action="{% url 'jobs:retry_job' job.pk %}" style="margin-top: 1rem;">
+        {% csrf_token %}
+        <button class="btn btn--danger" type="submit">{% trans "Retry job" %}</button>
+      </form>
+    </div>
+  {% endif %}
+
+  {% if job.summary %}
+    <div class="card" style="margin-bottom: 1.25rem;">
+      <h2 style="font-family: var(--font-display); font-size: 1.2rem; margin: 0 0 0.75rem;">{% trans "Summary" %}</h2>
+      <div class="transcript" style="white-space: pre-wrap;">{{ job.summary }}</div>
+    </div>
+  {% endif %}
+
+  {% if job.transcript %}
+    <div class="card">
+      <h2 style="font-family: var(--font-display); font-size: 1.2rem; margin: 0 0 1rem;">{% trans "Transcript" %}</h2>
+      {% if show_speakers %}
+        <div id="static-transcript-text" class="transcript" style="white-space: pre-wrap;">{% for u in job.utterances %}<p style="margin:0 0 .75rem;"><span style="font-size:.75rem;font-weight:700;letter-spacing:.05em;color:var(--accent);text-transform:uppercase;">{{ u.speaker }}</span><br>{{ u.text }}</p>{% endfor %}</div>
+      {% else %}
+        <pre class="transcript" id="static-transcript-text">{{ job.transcript }}</pre>
+      {% endif %}
+      <div class="transcript-actions">
+        <button class="btn btn--ghost" id="static-copy-btn" type="button">{% trans "Copy" %}</button>
+        <button class="btn btn--ghost" id="static-download-btn" type="button">{% trans "Download .txt" %}</button>
+        <a class="btn btn--ghost" href="{% url 'jobs:export_docx' job.pk %}">{% trans "Download .docx" %}</a>
+        <a class="btn btn--ghost" href="{% url 'jobs:export_srt' job.pk %}">{% trans "Download .srt" %}</a>
+      </div>
+    </div>
+    <script>
+    (function () {
+      var pre = document.getElementById("static-transcript-text");
+      var copyBtn = document.getElementById("static-copy-btn");
+      var dlBtn = document.getElementById("static-download-btn");
+      var copyLabel = copyBtn ? copyBtn.textContent : "";
+      var copiedLabel = "{% trans 'Copied!' %}";
+      var jobId = "{{ job.pk }}";
+      if (copyBtn && pre) {
+        copyBtn.addEventListener("click", function () {
+          navigator.clipboard.writeText(pre.textContent).then(function () {
+            copyBtn.textContent = copiedLabel;
+            setTimeout(function () { copyBtn.textContent = copyLabel; }, 1500);
+          });
+        });
+      }
+      if (dlBtn && pre) {
+        dlBtn.addEventListener("click", function () {
+          var blob = new Blob([pre.textContent], { type: "text/plain" });
+          var blobUrl = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = blobUrl;
+          a.download = "transcript-job-" + jobId + ".txt";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(blobUrl);
+        });
+      }
+    })();
+    </script>
+  {% endif %}
+
+  <p style="margin-top: 1.75rem; display:flex; gap:1rem; align-items:center;">
+    <a class="btn btn--ghost" href="{% url 'jobs:dashboard' %}">{% trans "← Back to dashboard" %}</a>
+    <form method="post" action="{% url 'jobs:delete_job' job.pk %}"
+          onsubmit="return confirm('{% trans "Delete this job and its file?" %}');">
+      {% csrf_token %}
+      <button type="submit" class="btn btn--ghost" style="color:var(--danger,#b42318);">{% trans "Delete job" %}</button>
+    </form>
+  </p>
+
+  {% if job.status == "pending" or job.status == "processing" %}
+  <script>
+  (function () {
+    var cfg = document.getElementById("job-poll-config");
+    var pollUrl = cfg.dataset.url;
+    var retryUrl = cfg.dataset.retryUrl;
+    var csrfToken = cfg.dataset.csrfToken;
+    var jobId = cfg.dataset.jobId;
+    var transcriptHeading = cfg.dataset.transcriptHeading;
+    var summaryHeading = cfg.dataset.summaryHeading;
+    var copyLabel = cfg.dataset.copyLabel;
+    var copiedLabel = cfg.dataset.copiedLabel;
+    var downloadLabel = cfg.dataset.downloadLabel;
+    var docxUrl = cfg.dataset.docxUrl;
+    var srtUrl = cfg.dataset.srtUrl;
+    var docxLabel = cfg.dataset.docxLabel;
+    var srtLabel = cfg.dataset.srtLabel;
+    var errorLabel = cfg.dataset.errorLabel;
+    var retryLabel = cfg.dataset.retryLabel;
+    var stepOrder = JSON.parse(cfg.dataset.stepOrder);
+    var maxPolls = 480;
+    var polls = 0;
+
+    function setBadge(kind, label) {
+      var wrap = document.getElementById("job-status-badge-wrap");
+      if (!wrap) return;
+      wrap.textContent = "";
+      var span = document.createElement("span");
+      span.textContent = label;
+      if (kind === "ok") span.className = "pill pill--ok";
+      else if (kind === "bad") span.className = "pill pill--bad";
+      else { span.style.color = "var(--muted)"; span.style.fontWeight = "600"; }
+      wrap.appendChild(span);
+    }
+
+    function updateStepper(currentStep) {
+      var stepper = document.getElementById("job-stepper");
+      if (!stepper) return;
+      var currentIdx = stepOrder.indexOf(currentStep);
+      var isLastStep = currentIdx === stepOrder.length - 1;
+      stepOrder.forEach(function (key, idx) {
+        var el = stepper.querySelector('[data-step="' + key + '"]');
+        if (!el) return;
+        el.className = "job-step";
+        var iconEl = el.querySelector(".job-step__icon");
+        if (idx < currentIdx || (idx === currentIdx && isLastStep)) {
+          el.classList.add("job-step--done");
+          if (iconEl) iconEl.textContent = "✓";
+        } else if (idx === currentIdx) {
+          el.classList.add("job-step--active");
+          if (iconEl) {
+            iconEl.textContent = "";
+            var sp = document.createElement("span");
+            sp.className = "spinner";
+            sp.style.cssText = "width:.75rem;height:.75rem;border-width:2px;";
+            sp.setAttribute("aria-hidden", "true");
+            iconEl.appendChild(sp);
+          }
+        } else {
+          el.classList.add("job-step--pending");
+          if (iconEl) iconEl.textContent = " ";
+        }
+      });
+    }
+
+    function updateProgress(pct, indeterminate) {
+      var fill = document.getElementById("job-progress-fill");
+      var pctEl = document.getElementById("job-progress-pct");
+      if (fill) {
+        fill.style.width = pct + "%";
+        if (indeterminate) fill.classList.add("job-progress-fill--indeterminate");
+        else fill.classList.remove("job-progress-fill--indeterminate");
+      }
+      if (pctEl) pctEl.textContent = pct + "%";
+    }
+
+    function makeActions(text) {
+      var actions = document.createElement("div");
+      actions.className = "transcript-actions";
+
+      var copyBtn = document.createElement("button");
+      copyBtn.type = "button"; copyBtn.className = "btn btn--ghost";
+      copyBtn.textContent = copyLabel;
+      copyBtn.addEventListener("click", function () {
+        navigator.clipboard.writeText(text).then(function () {
+          copyBtn.textContent = copiedLabel;
+          setTimeout(function () { copyBtn.textContent = copyLabel; }, 1500);
+        });
+      });
+      actions.appendChild(copyBtn);
+
+      var dlBtn = document.createElement("button");
+      dlBtn.type = "button"; dlBtn.className = "btn btn--ghost";
+      dlBtn.textContent = downloadLabel;
+      dlBtn.addEventListener("click", function () {
+        var blob = new Blob([text], { type: "text/plain" });
+        var blobUrl = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = "transcript-job-" + jobId + ".txt";
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(blobUrl);
+      });
+      actions.appendChild(dlBtn);
+
+      var docxLink = document.createElement("a");
+      docxLink.className = "btn btn--ghost";
+      docxLink.href = docxUrl;
+      docxLink.textContent = docxLabel;
+      actions.appendChild(docxLink);
+
+      var srtLink = document.createElement("a");
+      srtLink.className = "btn btn--ghost";
+      srtLink.href = srtUrl;
+      srtLink.textContent = srtLabel;
+      actions.appendChild(srtLink);
+
+      return actions;
+    }
+
+    function showTranscript(text, summary, utterances) {
+      var slot = document.getElementById("job-dynamic-slot");
+      if (!slot || !text) return;
+      slot.textContent = "";
+
+      if (summary) {
+        var sumCard = document.createElement("div");
+        sumCard.className = "card";
+        sumCard.style.marginBottom = "1.25rem";
+        var sumH2 = document.createElement("h2");
+        sumH2.style.cssText = "font-family:var(--font-display);font-size:1.2rem;margin:0 0 .75rem;";
+        sumH2.textContent = summaryHeading;
+        var sumPre = document.createElement("div");
+        sumPre.className = "transcript";
+        sumPre.style.whiteSpace = "pre-wrap";
+        sumPre.textContent = summary;
+        sumCard.appendChild(sumH2); sumCard.appendChild(sumPre);
+        slot.appendChild(sumCard);
+      }
+
+      var card = document.createElement("div");
+      card.className = "card";
+      var h2 = document.createElement("h2");
+      h2.style.cssText = "font-family:var(--font-display);font-size:1.2rem;margin:0 0 1rem;";
+      h2.textContent = transcriptHeading;
+      card.appendChild(h2);
+
+      var hasSpeakers = utterances && utterances.length && utterances.some(function(u) { return u.speaker; });
+      if (hasSpeakers) {
+        var speakerDiv = document.createElement("div");
+        speakerDiv.id = "static-transcript-text";
+        speakerDiv.className = "transcript";
+        speakerDiv.style.whiteSpace = "pre-wrap";
+        utterances.forEach(function(u) {
+          var p = document.createElement("p");
+          p.style.cssText = "margin:0 0 .75rem;";
+          var label = document.createElement("span");
+          label.style.cssText = "font-size:.75rem;font-weight:700;letter-spacing:.05em;color:var(--accent);text-transform:uppercase;";
+          label.textContent = u.speaker;
+          var br = document.createElement("br");
+          var txt = document.createTextNode(u.text);
+          p.appendChild(label); p.appendChild(br); p.appendChild(txt);
+          speakerDiv.appendChild(p);
+        });
+        card.appendChild(speakerDiv);
+      } else {
+        var pre = document.createElement("pre");
+        pre.className = "transcript";
+        pre.id = "static-transcript-text";
+        pre.textContent = text;
+        card.appendChild(pre);
+      }
+
+      card.appendChild(makeActions(text));
+      slot.appendChild(card);
+    }
+
+    function showError(errorMessage) {
+      var slot = document.getElementById("job-dynamic-slot");
+      document.getElementById("job-polling-msg")?.remove();
+      cfg.remove();
+      var card = document.createElement("div");
+      card.className = "card";
+      card.style.cssText = "margin-bottom:1.25rem;border-color:rgba(180,35,24,0.2);background:var(--danger-bg);";
+      var p = document.createElement("p");
+      p.style.cssText = "margin:0 0 1rem;color:#7f1d1d;";
+      var strong = document.createElement("strong"); strong.textContent = errorLabel;
+      p.appendChild(strong);
+      var pre = document.createElement("pre");
+      pre.className = "transcript";
+      pre.style.cssText = "max-height:none;background:#fff;";
+      pre.textContent = errorMessage || "";
+      var form = document.createElement("form");
+      form.method = "post"; form.action = retryUrl; form.style.marginTop = "1rem";
+      var csrf = document.createElement("input");
+      csrf.type = "hidden"; csrf.name = "csrfmiddlewaretoken"; csrf.value = csrfToken;
+      var btn = document.createElement("button");
+      btn.type = "submit"; btn.className = "btn btn--danger"; btn.textContent = retryLabel;
+      form.appendChild(csrf); form.appendChild(btn);
+      card.appendChild(p); card.appendChild(pre); card.appendChild(form);
+      if (slot) slot.appendChild(card);
+    }
+
+    async function pollLoop() {
+      while (polls < maxPolls) {
+        polls += 1;
+        try {
+          var res = await fetch(pollUrl, { headers: { Accept: "application/json" }, credentials: "same-origin" });
+          if (!res.ok) { await new Promise(function (r) { setTimeout(r, 2500); }); continue; }
+          var data = await res.json();
+          if (data.current_step) {
+            updateStepper(data.current_step);
+            updateProgress(data.progress, data.current_step === "transcribing");
+          }
+          if (!data.terminal) { await new Promise(function (r) { setTimeout(r, 2500); }); continue; }
+          if (data.status === "failed") {
+            updateStepper("queued");
+            updateProgress(0, false);
+            setBadge("bad", data.status_display);
+            showError(data.error_message);
+            return;
+          }
+          if (data.status === "done") {
+            updateStepper("done");
+            updateProgress(100, false);
+            document.getElementById("job-polling-msg")?.remove();
+            cfg.remove();
+            setBadge("ok", data.status_display);
+            showTranscript(data.transcript, data.summary || "", data.utterances || []);
+            return;
+          }
+        } catch (e) {
+          await new Promise(function (r) { setTimeout(r, 2500); });
+        }
+      }
+    }
+    pollLoop();
+  })();
+  </script>
+  {% endif %}
+{% endblock %}

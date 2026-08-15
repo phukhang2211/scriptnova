@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" fill="none">
+  <!-- Icon: rounded square background -->
+  <rect width="48" height="48" rx="12" fill="#1e4d8c"/>
+
+  <!-- Waveform bars (white) -->
+  <rect x="7"  y="22" width="3.5" height="4"  rx="1.75" fill="white" opacity="0.5"/>
+  <rect x="12" y="18" width="3.5" height="12" rx="1.75" fill="white" opacity="0.7"/>
+  <rect x="17" y="13" width="3.5" height="22" rx="1.75" fill="white"/>
+  <rect x="22" y="19" width="3.5" height="10" rx="1.75" fill="white" opacity="0.75"/>
+
+  <!-- 4-point star (white) -->
+  <polygon points="38,15 39.2,23 47,24 39.2,25 38,33 36.8,25 29,24 36.8,23"
+           fill="white"/>
+  <circle cx="38" cy="24" r="2" fill="#1e4d8c"/>
+
+  <!-- Wordmark: "Script" -->
+  <text x="60" y="30"
+        font-family="'Instrument Sans', ui-sans-serif, system-ui, sans-serif"
+        font-size="20"
+        font-weight="600"
+        letter-spacing="-0.3"
+        fill="#0f172a">Script</text>
+
+  <!-- Wordmark: "Nova" in accent -->
+  <text x="117" y="30"
+        font-family="'Instrument Sans', ui-sans-serif, system-ui, sans-serif"
+        font-size="20"
+        font-weight="600"
+        letter-spacing="-0.3"
+        fill="#1e4d8c">Nova</text>
+</svg>

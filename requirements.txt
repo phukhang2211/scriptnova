@@ -1,0 +1,8 @@
+Django==6.0.4
+django-environ==0.13.0
+assemblyai==0.63.0
+python-docx==1.2.0
+whitenoise==6.9.0
+gunicorn==25.3.0
+babel==2.18.0
+polib==1.2.0

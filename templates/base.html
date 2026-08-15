@@ -1,0 +1,75 @@
+{% load static i18n %}
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE|default:'en' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ScriptNova{% endblock %}</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32x32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/favicon-16x16.png' %}">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="{% url 'jobs:dashboard' %}">
+        <img src="{% static 'img/logo.svg' %}" alt="ScriptNova" class="brand-logo" height="32">
+      </a>
+      <nav class="nav-primary" aria-label="{% trans 'Primary navigation' %}">
+        <a href="{% url 'jobs:dashboard' %}" class="nav-primary__app">{% trans "Dashboard" %}</a>
+        <a href="{% url 'jobs:settings' %}">{% trans "Settings" %}</a>
+      </nav>
+      <div class="site-header__aside">
+        {% get_current_language as LANG_CODE %}
+        {% get_available_languages as LANGUAGES %}
+        <form class="lang-switch" action="{% url 'set_language' %}" method="post" aria-label="{% trans 'Language' %}">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <label class="lang-switch__label" for="lang-select">{% trans "Language" %}</label>
+          <select id="lang-select" name="language" lang="{{ LANG_CODE }}" onchange="this.form.submit()">
+            {% for lang_code, lang_name in LANGUAGES %}
+              <option value="{{ lang_code }}" lang="{{ lang_code }}"{% if lang_code == LANG_CODE %} selected{% endif %}>{{ lang_name }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main" id="main">
+    {% if messages %}
+      <ul class="messages" role="status">
+        {% for message in messages %}
+          <li class="message{% if 'error' in message.tags %} message--error{% elif 'success' in message.tags %} message--success{% elif 'warning' in message.tags %} message--warning{% else %} message--info{% endif %}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".message").forEach(function (msg) {
+      setTimeout(function () {
+        msg.style.transition = "opacity 0.5s ease";
+        msg.style.opacity = "0";
+        setTimeout(function () { msg.remove(); }, 500);
+      }, 4000);
+    });
+  });
+  </script>
+
+  <footer class="site-footer">
+    <p>{% trans "ScriptNova — runs locally on your machine." %}</p>
+  </footer>
+</body>
+</html>

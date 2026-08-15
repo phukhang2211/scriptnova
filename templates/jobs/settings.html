@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Settings" %}{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h1>{% trans "Settings" %}</h1>
+    <p class="lead">
+      {% trans "Paste your AssemblyAI API key below to start transcribing. Get a free key at" %}
+      <a href="https://www.assemblyai.com/dashboard" target="_blank" rel="noopener">assemblyai.com/dashboard</a>.
+    </p>
+  </div>
+
+  <div class="card form-card" style="max-width: 32rem;">
+    {% if assemblyai_configured %}
+      <p class="pill pill--ok" style="display:inline-block;margin-bottom:1rem;">{% trans "AssemblyAI connected" %}</p>
+    {% else %}
+      <p class="pill pill--bad" style="display:inline-block;margin-bottom:1rem;">{% trans "No API key set" %}</p>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div style="margin-bottom: 1rem;">
+        {{ form.assemblyai_api_key.label_tag }}
+        {{ form.assemblyai_api_key }}
+        {% if form.assemblyai_api_key.errors %}
+          <div class="form-error">{{ form.assemblyai_api_key.errors.0 }}</div>
+        {% endif %}
+      </div>
+      <div style="margin-bottom: 1.25rem; display:flex; align-items:center; gap:.5rem;">
+        {{ form.notify_on_complete }}
+        {{ form.notify_on_complete.label_tag }}
+      </div>
+      <button class="btn btn--primary" type="submit">{% trans "Save" %}</button>
+    </form>
+  </div>
+{% endblock %}

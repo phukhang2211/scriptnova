@@ -1,0 +1,24 @@
+{% load i18n static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% trans "Server Error" %} — ScriptNova</title>
+  <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body class="error-page">
+  <div class="error-page__inner">
+    <div class="error-page__code">500</div>
+    <h1 class="error-page__title">{% trans "Something went wrong" %}</h1>
+    <p class="error-page__message">{% trans "We're experiencing a technical issue. Our team has been notified. Please try again in a few minutes." %}</p>
+    <div class="error-page__actions">
+      <a href="/" class="btn btn--primary">{% trans "Go to homepage" %}</a>
+    </div>
+  </div>
+</body>
+</html>

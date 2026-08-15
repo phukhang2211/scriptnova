@@ -1,0 +1,443 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-30 00:03+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: config/settings.py:116
+msgid "English"
+msgstr ""
+
+#: config/settings.py:117
+msgid "Vietnamese"
+msgstr ""
+
+#: jobs/forms.py:13
+msgid "Audio or video file"
+msgstr ""
+
+#: jobs/forms.py:20
+#, python-format
+msgid "File too large. Max size is %(max_mb)s MB."
+msgstr ""
+
+#: jobs/forms.py:28
+#, python-format
+msgid "Unsupported file type. Allowed: %(extensions)s"
+msgstr ""
+
+#: jobs/forms.py:36
+msgid "Captcha"
+msgstr ""
+
+#: jobs/forms.py:37
+msgid "Required after repeated failed login attempts."
+msgstr ""
+
+#: jobs/forms.py:46
+msgid "Captcha missing. Reload and try again."
+msgstr ""
+
+#: jobs/forms.py:49
+msgid "Captcha answer is incorrect."
+msgstr ""
+
+#: jobs/forms.py:54
+msgid "Email"
+msgstr ""
+
+#: jobs/forms.py:55
+msgid "Subject"
+msgstr ""
+
+#: jobs/forms.py:56
+msgid "Message"
+msgstr ""
+
+#: jobs/models.py:10
+msgid "Pending"
+msgstr ""
+
+#: jobs/models.py:11
+msgid "Processing"
+msgstr ""
+
+#: jobs/models.py:12
+msgid "Done"
+msgstr ""
+
+#: jobs/models.py:13
+msgid "Failed"
+msgstr ""
+
+#: jobs/models.py:33 templates/pages/pricing.html:15
+msgid "Free"
+msgstr ""
+
+#: jobs/models.py:34 templates/pages/pricing.html:16
+msgid "Pro"
+msgstr ""
+
+#: jobs/views.py:46
+#, python-format
+msgid "What is %(a)s + %(b)s?"
+msgstr ""
+
+#: jobs/views.py:87
+#, python-format
+msgid "Monthly upload limit reached (%(used)s/%(limit)s). Upgrade to continue."
+msgstr ""
+
+#: jobs/views.py:97
+msgid "Too many uploads in a short time. Please wait one minute."
+msgstr ""
+
+#: jobs/views.py:102
+msgid "Please choose a valid file."
+msgstr ""
+
+#: jobs/views.py:110
+msgid "Upload received. Transcription has started."
+msgstr ""
+
+#: jobs/views.py:128
+#, python-format
+msgid "Job #%(id)s queued for retry."
+msgstr ""
+
+#: jobs/views.py:148
+#, python-format
+msgid "[ScriptNova Contact] %(subject)s"
+msgstr ""
+
+#: jobs/views.py:154
+msgid "Message sent. We will reply soon."
+msgstr ""
+
+#: jobs/views.py:165
+msgid "AssemblyAI API key"
+msgstr ""
+
+#: jobs/views.py:166
+msgid "Stripe secret key"
+msgstr ""
+
+#: jobs/views.py:167
+msgid "Stripe price ID"
+msgstr ""
+
+#: jobs/views.py:168
+msgid "Stripe webhook secret"
+msgstr ""
+
+#: jobs/views.py:169
+msgid "Celery broker URL"
+msgstr ""
+
+#: jobs/views.py:170
+msgid "Database configuration"
+msgstr ""
+
+#: jobs/views.py:171
+msgid "Email backend"
+msgstr ""
+
+#: jobs/views.py:172
+msgid "Support email"
+msgstr ""
+
+#: jobs/views.py:206
+msgid "Stripe is not configured yet."
+msgstr ""
+
+#: jobs/views.py:217
+msgid "Checkout completed. Subscription will sync after webhook."
+msgstr ""
+
+#: jobs/views.py:223
+msgid "Checkout canceled."
+msgstr ""
+
+#: templates/base.html:18
+msgid "Primary navigation"
+msgstr ""
+
+#: templates/base.html:19
+msgid "Health"
+msgstr ""
+
+#: templates/base.html:20
+msgid "Terms"
+msgstr ""
+
+#: templates/base.html:21 templates/pages/privacy.html:3
+#: templates/pages/privacy.html:7
+msgid "Privacy"
+msgstr ""
+
+#: templates/base.html:22 templates/pages/contact.html:3
+#: templates/pages/contact.html:7
+msgid "Contact"
+msgstr ""
+
+#: templates/base.html:24 templates/jobs/dashboard.html:3
+msgid "Dashboard"
+msgstr ""
+
+#: templates/base.html:25 templates/base.html:27 templates/pages/pricing.html:3
+#: templates/pages/pricing.html:7
+msgid "Pricing"
+msgstr ""
+
+#: templates/base.html:34
+msgid "Language"
+msgstr ""
+
+#: templates/base.html:46
+msgid "Log out"
+msgstr ""
+
+#: templates/base.html:48 templates/registration/login.html:3
+msgid "Log in"
+msgstr ""
+
+#: templates/base.html:69
+msgid "ScriptNova — fast transcripts from your audio and video."
+msgstr ""
+
+#: templates/base.html:72
+msgid "Get in touch"
+msgstr ""
+
+#: templates/jobs/dashboard.html:7
+msgid "Transcription dashboard"
+msgstr ""
+
+#: templates/jobs/dashboard.html:8
+msgid ""
+"Upload audio or video, then open each job to read or copy your transcript."
+msgstr ""
+
+#: templates/jobs/dashboard.html:12
+msgid "Usage this month"
+msgstr ""
+
+#: templates/jobs/dashboard.html:16
+msgid "Limit reached"
+msgstr ""
+
+#: templates/jobs/dashboard.html:21 templates/pages/pricing.html:22
+msgid "Upgrade to Pro"
+msgstr ""
+
+#: templates/jobs/dashboard.html:22
+msgid "for more uploads this month."
+msgstr ""
+
+#: templates/jobs/dashboard.html:28
+msgid "New upload"
+msgstr ""
+
+#: templates/jobs/dashboard.html:38
+msgid "Upload and transcribe"
+msgstr ""
+
+#: templates/jobs/dashboard.html:43
+msgid "Your jobs"
+msgstr ""
+
+#: templates/jobs/dashboard.html:47 templates/jobs/job_detail.html:3
+#: templates/jobs/job_detail.html:7
+#, python-format
+msgid "Job #%(n)s"
+msgstr ""
+
+#: templates/jobs/dashboard.html:54
+msgid "No jobs yet. Upload a file above to get started."
+msgstr ""
+
+#: templates/jobs/job_detail.html:9
+msgid "Status"
+msgstr ""
+
+#: templates/jobs/job_detail.html:22
+msgid "Error"
+msgstr ""
+
+#: templates/jobs/job_detail.html:26
+msgid "Retry job"
+msgstr ""
+
+#: templates/jobs/job_detail.html:33
+msgid "Transcript"
+msgstr ""
+
+#: templates/jobs/job_detail.html:39
+msgid "← Back to dashboard"
+msgstr ""
+
+#: templates/pages/contact.html:8
+msgid "Questions, feedback, or support—we read every message."
+msgstr ""
+
+#: templates/pages/contact.html:13
+msgid "Prefer email?"
+msgstr ""
+
+#: templates/pages/contact.html:19
+msgid "Send message"
+msgstr ""
+
+#: templates/pages/integrations_health.html:3
+#: templates/pages/integrations_health.html:7
+msgid "Integrations health"
+msgstr ""
+
+#: templates/pages/integrations_health.html:9
+#, python-format
+msgid ""
+"Quick readiness check for API keys and critical settings (%(ready)s / "
+"%(total)s)."
+msgstr ""
+
+#: templates/pages/integrations_health.html:21
+msgid "OK"
+msgstr ""
+
+#: templates/pages/integrations_health.html:23
+msgid "Missing"
+msgstr ""
+
+#: templates/pages/landing.html:3
+msgid "Clear transcripts, fast"
+msgstr ""
+
+#: templates/pages/landing.html:8
+msgid "Audio & video to text"
+msgstr ""
+
+#: templates/pages/landing.html:9
+msgid "Turn recordings into clean transcripts in minutes."
+msgstr ""
+
+#: templates/pages/landing.html:11
+msgid ""
+"ScriptNova is built for creators, teams, and anyone who needs accurate text "
+"from spoken content—without a heavy workflow."
+msgstr ""
+
+#: templates/pages/landing.html:16
+msgid "Start now"
+msgstr ""
+
+#: templates/pages/landing.html:17
+msgid "View pricing"
+msgstr ""
+
+#: templates/pages/landing.html:22
+msgid "Why ScriptNova"
+msgstr ""
+
+#: templates/pages/landing.html:24
+msgid "Simple upload flow from your dashboard"
+msgstr ""
+
+#: templates/pages/landing.html:25
+msgid "Automatic processing with email-ready exports"
+msgstr ""
+
+#: templates/pages/landing.html:26
+msgid "Free tier to try, Pro when you need scale"
+msgstr ""
+
+#: templates/pages/pricing.html:8
+msgid "Simple limits. Upgrade when you outgrow the free tier."
+msgstr ""
+
+#: templates/pages/pricing.html:12
+msgid "Your plan"
+msgstr ""
+
+#: templates/pages/pricing.html:15 templates/pages/pricing.html:16
+msgid "uploads per month"
+msgstr ""
+
+#: templates/pages/pricing.html:26
+msgid ""
+"Stripe is not configured yet. Add your Stripe keys in <code>.env</code> to "
+"enable checkout."
+msgstr ""
+
+#: templates/pages/privacy.html:8
+msgid "How we think about your files and account data."
+msgstr ""
+
+#: templates/pages/privacy.html:12
+msgid ""
+"Uploaded files are used to produce your transcription and associated "
+"metadata needed to run the service. For this MVP, retention and deletion "
+"policies are minimal and may be expanded with clearer controls and "
+"documentation."
+msgstr ""
+
+#: templates/pages/privacy.html:18
+msgid ""
+"We do not sell your content. Contact us if you need a copy of your data or "
+"have questions about processing."
+msgstr ""
+
+#: templates/pages/terms.html:3 templates/pages/terms.html:7
+msgid "Terms of use"
+msgstr ""
+
+#: templates/pages/terms.html:8
+msgid "Please read this summary before using the service."
+msgstr ""
+
+#: templates/pages/terms.html:12
+msgid ""
+"This is an MVP service provided as-is. Do not upload sensitive personal data "
+"you are not allowed to share, or any illegal content. We may update these "
+"terms as the product matures."
+msgstr ""
+
+#: templates/pages/terms.html:18
+msgid ""
+"By using ScriptNova you agree that you are responsible for the content you "
+"upload and for complying with applicable laws and third-party rights."
+msgstr ""
+
+#: templates/registration/login.html:7
+msgid "Welcome back"
+msgstr ""
+
+#: templates/registration/login.html:8
+msgid "Sign in to upload files and view your transcripts."
+msgstr ""
+
+#: templates/registration/login.html:37
+msgid "Check your username and password."
+msgstr ""
+
+#: templates/registration/login.html:40
+msgid "Sign in"
+msgstr ""
+
+#: templates/registration/login.html:46
+msgid ""
+"New here? Ask your admin for an account, or use <code style=\"font-size: "
+"0.85em;\">createsuperuser</code> locally."
+msgstr ""

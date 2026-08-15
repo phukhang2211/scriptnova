@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- Rounded square background -->
+  <rect width="48" height="48" rx="12" fill="#1e4d8c"/>
+
+  <!-- Waveform bars (white, centered left) -->
+  <rect x="7"  y="22" width="3.5" height="4"  rx="1.75" fill="white" opacity="0.5"/>
+  <rect x="12" y="18" width="3.5" height="12" rx="1.75" fill="white" opacity="0.7"/>
+  <rect x="17" y="13" width="3.5" height="22" rx="1.75" fill="white"/>
+  <rect x="22" y="19" width="3.5" height="10" rx="1.75" fill="white" opacity="0.75"/>
+
+  <!-- 4-point star (white, right side) -->
+  <path d="M37 14
+           C37 14 37.8 20 38 24
+           C38.2 28 39 34 39 34
+           C39 34 38.2 28 38 24
+           C37.8 20 37 14 37 14Z"
+        fill="white"/>
+  <path d="M28 23
+           C28 23 34 23.8 38 24
+           C42 24.2 48 23 48 23
+           C48 23 42 23.8 38 24
+           C34 24.2 28 23 28 23Z"
+        fill="white" transform="translate(-9,0)"/>
+
+  <!-- Cleaner 4-point star using polygon -->
+  <polygon points="38,15 39.2,23 47,24 39.2,25 38,33 36.8,25 29,24 36.8,23"
+           fill="white"/>
+
+  <!-- Dot connector -->
+  <circle cx="38" cy="24" r="2" fill="#1e4d8c"/>
+</svg>

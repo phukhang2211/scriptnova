@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% trans "Dashboard" %}{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h1>{% trans "Transcription dashboard" %}</h1>
+    <p class="lead">{% trans "Upload audio or video, then open each job to read or copy your transcript." %}</p>
+  </div>
+
+  <div class="card form-card" style="margin-bottom: 2rem;">
+    <h2>{% trans "New upload" %}</h2>
+    <form method="post" action="{% url 'jobs:upload' %}" enctype="multipart/form-data" id="upload-form">
+      {% csrf_token %}
+      <div class="upload-zone">
+        {{ form.file.label_tag }}
+        <input type="file" name="file" id="{{ form.file.id_for_label }}" multiple
+               accept=".mp3,.wav,.m4a,.mp4,.mov,.webm,.aac">
+        <p class="upload-file-name" id="upload-file-name" style="display:none;"></p>
+        <p id="upload-estimate" style="display:none; font-size: 0.85rem; color: var(--muted); margin: 0.25rem 0 0;"></p>
+        {% if form.file.errors %}
+          <div class="form-error">{{ form.file.errors.0 }}</div>
+        {% endif %}
+      </div>
+      <div style="margin: 0.75rem 0;">
+        <label for="language_code" style="display:block; font-size:0.875rem; font-weight:500; margin-bottom:0.3rem;">
+          {% trans "Audio language" %}
+        </label>
+        <select name="language_code" id="language_code" style="width:100%; padding:0.45rem 0.6rem; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text); font-size:0.9rem;">
+          <option value="">{% trans "Auto-detect" %}</option>
+          <option value="en">English</option>
+          <option value="vi">Tiếng Việt</option>
+          <option value="zh">中文 (Mandarin)</option>
+          <option value="ja">日本語</option>
+          <option value="ko">한국어</option>
+          <option value="fr">Français</option>
+          <option value="es">Español</option>
+          <option value="de">Deutsch</option>
+          <option value="pt">Português</option>
+          <option value="ar">العربية</option>
+          <option value="hi">हिन्दी</option>
+          <option value="it">Italiano</option>
+        </select>
+        <p style="margin:0.25rem 0 0; font-size:0.78rem; color:var(--muted);">{% trans "Selecting the correct language improves accuracy." %}</p>
+      </div>
+      <div id="upload-progress-wrap" style="display:none; margin: 0.75rem 0;">
+        <div class="job-progress-track">
+          <div id="upload-progress-fill" class="job-progress-fill" style="width:0%;transition:width .15s;"></div>
+        </div>
+        <p id="upload-progress-label" style="font-size:0.85rem;color:var(--muted);margin:0.25rem 0 0;">0%</p>
+      </div>
+      <button class="btn btn--primary" type="submit" id="upload-btn">
+        {% trans "Upload and transcribe" %}
+      </button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+      <h2 style="margin:0;">{% trans "Your jobs" %}</h2>
+      <form method="get" action="" id="filter-form" style="display:flex;gap:0.5rem;flex-wrap:wrap;flex:1;min-width:0;">
+        <input type="text" name="q" value="{{ q }}" placeholder="{% trans 'Search by filename…' %}"
+               style="flex:1;min-width:10rem;padding:0.35rem 0.6rem;border:1px solid var(--border);border-radius:6px;font-size:0.875rem;">
+        <select name="status" style="padding:0.35rem 0.6rem;border:1px solid var(--border);border-radius:6px;font-size:0.875rem;">
+          <option value="" {% if not status_filter %}selected{% endif %}>{% trans "All statuses" %}</option>
+          <option value="pending" {% if status_filter == "pending" %}selected{% endif %}>{% trans "Pending" %}</option>
+          <option value="processing" {% if status_filter == "processing" %}selected{% endif %}>{% trans "Processing" %}</option>
+          <option value="done" {% if status_filter == "done" %}selected{% endif %}>{% trans "Done" %}</option>
+          <option value="failed" {% if status_filter == "failed" %}selected{% endif %}>{% trans "Failed" %}</option>
+        </select>
+        <button type="submit" class="btn btn--ghost" style="font-size:0.875rem;padding:0.35rem 0.75rem;">{% trans "Filter" %}</button>
+        {% if q or status_filter %}
+          <a href="{% url 'jobs:dashboard' %}" class="btn btn--ghost" style="font-size:0.875rem;padding:0.35rem 0.75rem;">{% trans "Clear" %}</a>
+        {% endif %}
+      </form>
+    </div>
+    <ul class="data-list">
+      {% for job in jobs %}
+        <li>
+          {% if job.status == "done" %}
+            <span class="status-dot status-dot--done" title="{% trans 'Done' %}"></span>
+          {% elif job.status == "failed" %}
+            <span class="status-dot status-dot--failed" title="{% trans 'Failed' %}"></span>
+          {% elif job.status == "processing" %}
+            <span class="status-dot status-dot--processing" title="{% trans 'Processing' %}"></span>
+          {% else %}
+            <span class="status-dot status-dot--pending" title="{% trans 'Pending' %}"></span>
+          {% endif %}
+          <a href="{% url 'jobs:job_detail' job.pk %}">
+            {% if job.original_filename %}{{ job.original_filename }}{% else %}{% blocktrans with n=job.pk %}Job #{{ n }}{% endblocktrans %}{% endif %}
+          </a>
+          <span style="color: var(--faint);"> · </span>
+          <span style="color: var(--muted); font-size: 0.9rem;">{{ job.get_status_display }}</span>
+          {% if job.audio_duration_seconds %}
+            <span style="color: var(--faint);"> · </span>
+            <span style="color: var(--muted); font-size: 0.85rem;">{{ job.audio_duration_seconds|floatformat:0 }}s</span>
+          {% endif %}
+          <span style="color: var(--faint);"> · </span>
+          <span style="color: var(--muted); font-size: 0.85rem;">{{ job.created_at }}</span>
+          <span style="color: var(--faint);"> · </span>
+          <form method="post" action="{% url 'jobs:delete_job' job.pk %}" style="display:inline"
+                onsubmit="return confirm('{% trans "Delete this job and its file?" %}');">
+            {% csrf_token %}
+            <button type="submit" class="btn-link-danger" style="background:none;border:none;padding:0;font-size:0.85rem;color:var(--danger,#b42318);cursor:pointer;text-decoration:underline;">{% trans "Delete" %}</button>
+          </form>
+          {% if job.status == "failed" and job.error_message %}
+            <br><span style="font-size: 0.8rem; color: var(--muted);">{{ job.error_message|truncatechars:120 }}</span>
+          {% endif %}
+        </li>
+      {% empty %}
+        <li style="border: none; color: var(--muted);">
+          {% if q or status_filter %}
+            {% trans "No jobs match your search. " %}<a href="{% url 'jobs:dashboard' %}">{% trans "Clear filters" %}</a>
+          {% else %}
+            {% trans "No jobs yet. Upload a file above to get started." %}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <script>
+  (function () {
+    var fileInput = document.querySelector('#upload-form input[type="file"]');
+    var nameEl = document.getElementById("upload-file-name");
+    var estimEl = document.getElementById("upload-estimate");
+    var uploadBtn = document.getElementById("upload-btn");
+    var uploadForm = document.getElementById("upload-form");
+    var progressWrap = document.getElementById("upload-progress-wrap");
+    var progressFill = document.getElementById("upload-progress-fill");
+    var progressLabel = document.getElementById("upload-progress-label");
+    var uploadingLabel = "{% trans 'Uploading…' %}";
+    var dashboardUrl = "{% url 'jobs:dashboard' %}";
+
+    // Show selected file names + estimate duration
+    if (fileInput && nameEl) {
+      fileInput.addEventListener("change", function () {
+        var files = fileInput.files;
+        if (!files || !files.length) {
+          nameEl.style.display = "none";
+          if (estimEl) estimEl.style.display = "none";
+          return;
+        }
+        var names = Array.from(files).map(function (f) { return f.name; }).join(", ");
+        nameEl.textContent = names;
+        nameEl.style.display = "";
+
+        if (estimEl && files[0]) {
+          var objectUrl = URL.createObjectURL(files[0]);
+          var audio = new Audio();
+          audio.addEventListener("loadedmetadata", function () {
+            URL.revokeObjectURL(objectUrl);
+            var durationSec = audio.duration;
+            if (isFinite(durationSec) && durationSec > 0) {
+              var estimatedSec = Math.ceil(durationSec * 0.5);
+              var estimatedMin = Math.max(1, Math.round(estimatedSec / 60));
+              estimEl.textContent = files.length > 1
+                ? "{% trans 'First file: ~' %}" + estimatedMin + " {% trans 'min to transcribe' %}"
+                : "{% trans '~' %}" + estimatedMin + " {% trans 'min to transcribe' %}";
+              estimEl.style.display = "";
+            }
+          });
+          audio.addEventListener("error", function () { URL.revokeObjectURL(objectUrl); });
+          audio.src = objectUrl;
+        }
+      });
+    }
+
+    function resetUploadUI() {
+      uploadBtn.disabled = false;
+      uploadBtn.textContent = "{% trans 'Upload and transcribe' %}";
+      if (progressWrap) progressWrap.style.display = "none";
+      if (progressFill) progressFill.style.width = "0%";
+      if (progressLabel) progressLabel.textContent = "0%";
+    }
+
+    if (uploadForm && uploadBtn) {
+      uploadForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var files = fileInput && fileInput.files;
+        if (!files || !files.length) { uploadForm.submit(); return; }
+
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = uploadingLabel;
+        if (progressWrap) progressWrap.style.display = "";
+
+        var formData = new FormData(uploadForm);
+        var xhr = new XMLHttpRequest();
+        xhr.upload.addEventListener("progress", function (e) {
+          if (!e.lengthComputable) return;
+          var pct = Math.round(e.loaded / e.total * 100);
+          if (progressFill) progressFill.style.width = pct + "%";
+          if (progressLabel) progressLabel.textContent = pct + "%";
+        });
+        xhr.addEventListener("load", function () {
+          try {
+            var data = JSON.parse(xhr.responseText);
+            if (data.error) { alert(data.error); resetUploadUI(); return; }
+            window.location.href = data.jobs && data.jobs.length === 1
+              ? data.jobs[0].redirect : dashboardUrl;
+          } catch (err) { window.location.href = dashboardUrl; }
+        });
+        xhr.addEventListener("error", function () {
+          alert("{% trans 'Upload failed. Please try again.' %}");
+          resetUploadUI();
+        });
+        xhr.open("POST", uploadForm.action);
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.send(formData);
+      });
+    }
+
+    var statusSelect = document.querySelector('#filter-form select[name="status"]');
+    if (statusSelect) {
+      statusSelect.addEventListener("change", function () {
+        document.getElementById("filter-form").submit();
+      });
+    }
+  })();
+  </script>
+{% endblock %}
