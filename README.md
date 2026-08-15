@@ -29,25 +29,28 @@ open the extracted folder.
 
 *(If you're comfortable with Git, `git clone` works too.)*
 
-### Step 3 — Run the setup
+### Step 3 — Run one script
 
-Inside the folder, double-click **`setup.bat`**.
+Inside the folder, double-click **`install-autostart.bat`**.
 
-A black window will open and install everything the app needs. This only
-takes a minute or two, and you only have to do this once. When it says
-**"Setup complete"**, press any key to close the window.
+A black window will open and install everything the app needs — this only
+takes a minute or two. When it's done, your browser opens to the app
+automatically.
+
+From now on, ScriptNova starts quietly in the background every time you log
+into Windows — no window, nothing to double-click. Just open
+**http://127.0.0.1:8000/** in your browser whenever you want to use it.
 
 > If Windows shows a blue "Windows protected your PC" popup, click **More
 > info** → **Run anyway**. This happens because the app isn't a signed,
 > paid piece of software — the code is right here in this repo for anyone
 > to read.
 
-### Step 4 — Start the app
+> Don't want it running all the time? Double-click **`setup.bat`** instead,
+> then use **`run.bat`** whenever you want to open it — see
+> [Running it without auto-start](#running-it-without-auto-start) below.
 
-Double-click **`run.bat`**. A window will open (keep it open — closing it
-stops the app), and your browser will automatically open to the app.
-
-### Step 5 — Add your AssemblyAI key
+### Step 4 — Add your AssemblyAI key
 
 The first time you open the app, it'll ask you to add an AssemblyAI API key.
 
@@ -60,12 +63,28 @@ That's it — you can now upload a file and get a transcript.
 
 ## Using it after the first time
 
-You don't need to repeat the setup. Just double-click **`run.bat`** whenever
-you want to use the app, and close its window when you're done.
+Nothing to do — it's already running. Just open
+**http://127.0.0.1:8000/** in your browser any time.
+
+To stop it starting automatically, double-click **`uninstall-autostart.bat`**.
+
+## Running it without auto-start
+
+If you'd rather start ScriptNova by hand instead of it running all the
+time in the background:
+
+1. Double-click **`setup.bat`** once (installs everything, same as above,
+   but doesn't register auto-start).
+2. Double-click **`run.bat`** whenever you want to use it. A window opens
+   and your browser opens to the app — closing that window stops the app.
+
+You can switch between the two later: `install-autostart.bat` and
+`uninstall-autostart.bat` just turn the background auto-start on or off,
+and are safe to run more than once.
 
 ## Troubleshooting
 
-**"Python was not found" when I double-click setup.bat**
+**"Python was not found" when I double-click a .bat file**
 Python isn't installed, or wasn't added to PATH. Reinstall Python from
 [python.org](https://www.python.org/downloads/) and make sure to check
 "Add python.exe to PATH" during setup.
@@ -80,8 +99,9 @@ The server can take a couple of seconds to start. Wait a moment and refresh
 the page.
 
 **I want to start over / reset everything**
-Delete the `.venv` folder and the `db.sqlite3` file, then run `setup.bat`
-again.
+Run `uninstall-autostart.bat` (if you'd installed auto-start), then delete
+the `.venv` folder and the `db.sqlite3` file, then run `install-autostart.bat`
+or `setup.bat` again.
 
 ## What it does and doesn't do
 

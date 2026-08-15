@@ -26,9 +26,17 @@ old SaaS version if that context is ever needed.
 ## How to run locally (Windows)
 
 ```
-setup.bat   REM create venv, install deps, migrate
-run.bat     REM start the server and open the browser
+setup.bat               REM create venv, install deps, migrate
+run.bat                 REM start the server and open the browser (manual, visible window)
+install-autostart.bat   REM same as setup.bat, plus registers a Task Scheduler job that
+                         REM runs the server via pythonw.exe (no window) on every logon
+uninstall-autostart.bat REM removes that Task Scheduler job and stops the running process
 ```
+
+`install-autostart.bat`/`uninstall-autostart.bat` use `schtasks /sc onlogon`
+under the current user (no admin required) — see those files for the exact
+`/tr` invocation. The app's `BASE_DIR` is derived from `__file__`, not cwd,
+so it doesn't matter that Task Scheduler doesn't set a working directory.
 
 Or manually:
 ```bash
