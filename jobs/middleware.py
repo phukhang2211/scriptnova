@@ -5,32 +5,18 @@ the app, same as any other locally-installed software. A single local user
 is created on first use and every request is transparently authenticated
 as that user (including /admin/, handy for poking at the DB).
 """
-import threading
-
 from django.contrib.auth import get_user_model, login
-
-_provision_lock = threading.Lock()
-_local_user_id = None
 
 LOCAL_USERNAME = "local"
 
 
 def get_or_create_local_user():
-    global _local_user_id
     User = get_user_model()
-    if _local_user_id is not None:
-        try:
-            return User.objects.get(pk=_local_user_id)
-        except User.DoesNotExist:
-            _local_user_id = None
-
-    with _provision_lock:
-        user, _created = User.objects.get_or_create(
-            username=LOCAL_USERNAME,
-            defaults={"is_staff": True, "is_superuser": True},
-        )
-        _local_user_id = user.pk
-        return user
+    user, _created = User.objects.get_or_create(
+        username=LOCAL_USERNAME,
+        defaults={"is_staff": True, "is_superuser": True},
+    )
+    return user
 
 
 class AutoLoginMiddleware:

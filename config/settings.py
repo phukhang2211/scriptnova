@@ -104,7 +104,16 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        # The manifest storage requires `collectstatic` to have run first
+        # (that's how Docker/entrypoint.sh serves static assets in
+        # production). Plain local `runserver` use never runs that step, so
+        # fall back to a storage that doesn't need a manifest — runserver
+        # still serves the files directly from STATICFILES_DIRS either way.
+        "BACKEND": (
+            "whitenoise.storage.CompressedManifestStaticFilesStorage"
+            if not DEBUG else
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+        ),
     },
 }
 
