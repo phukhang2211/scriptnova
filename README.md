@@ -23,11 +23,21 @@ This app needs Python to run. If you don't already have it:
 
 ### Step 2 — Download ScriptNova
 
-Click the green **Code** button at the top of this page → **Download ZIP**.
-Once it's downloaded, right-click the ZIP file and choose **Extract All**, then
-open the extracted folder.
+Pick whichever of these is easier for you — both end up with the same
+folder on your computer.
 
-*(If you're comfortable with Git, `git clone` works too.)*
+**Option A — ZIP download (no Git needed)**
+1. Click the green **Code** button at the top of this page → **Download ZIP**.
+2. Once it's downloaded, right-click the ZIP file and choose **Extract All**.
+3. Open the extracted folder.
+
+**Option B — Git clone**
+1. Open a terminal (Command Prompt or PowerShell).
+2. Run:
+   ```
+   git clone https://github.com/phukhang2211/scriptnova.git
+   ```
+3. Open the new `scriptnova` folder it created.
 
 ### Step 3 — Run one script
 
